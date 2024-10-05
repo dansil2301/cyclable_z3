@@ -2,24 +2,27 @@ grammar StartGrammer;
 
 // rules
 compilationUnit: statement* EOF;
+
 statement:
     constAssignment ENDLINE
   | varCreation ENDLINE
   | functionDeclaration ENDLINE
-  | functionDefinition ENDLINE;
+  | functionDefinition;
 
 constAssignment  : CONST TYPES ID ASSIGN NUMBER;
 varCreation      : TYPES ID;
+
 functionDeclaration: FUN '[' argList ']' ID;
-functionDefinition: TYPES FUNC ID '(' TYPES ID ')'; //not sure how to do {1 < name or -1 > name;}
 argList: TYPES (',' TYPES)*;
 
+functionDefinition: TYPES FUNCION ID '(' parametersFunction ')' '{' statement* '}';
+parametersFunction: (TYPES ID)* (',' TYPES ID)*;
 
 // tokens
 //reserved words
 CONST     : 'const';
-FUN : 'Fun';
-FUNC : 'function' ;
+FUN       : 'Fun';
+FUNCION   : 'function' ;
 
 TYPES     : INT_T | BOOL_T | REAL_T;
 INT_T     : 'Int';
