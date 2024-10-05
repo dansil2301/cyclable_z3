@@ -1,0 +1,5 @@
+# Ignore all files starting with StartGrammer
+StartGrammer*
+
+# But do not ignore StartGrammer.g4
+!StartGrammer.g4
