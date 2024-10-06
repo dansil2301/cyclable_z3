@@ -1,5 +1,5 @@
 # Ignore all files starting with StartGrammer
-StartGrammer*
+Cyclable_Z3_Grammer*
 
-# But do not ignore StartGrammer.g4
-!StartGrammer.g4
+# But do not ignore Cyclable_Z3_Grammer.g4
+!Cyclable_Z3_Grammer.g4

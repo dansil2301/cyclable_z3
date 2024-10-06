@@ -1,0 +1,6 @@
+const Int test = 10;
+const Int amountOfSq = 20;
+
+check;
+print amountOfSq;
+print test;
