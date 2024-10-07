@@ -27,16 +27,15 @@ parametersFunction: (TYPES ID) (',' TYPES ID)*;
 types             : TYPES;
 value             : NUMBER | BOOL;
 varName           : ID;
-
-mathValue         : NUMBER | BOOL;
 assignedName      : ID;
 
 logicChain        : logicalItem;
 logicalItem       :
     '(' logicalItem ')'
+    | SINGLECOM logicalItem
     | logicalItem AND logicalItem
     | logicalItem OR logicalItem
-    | (mathValue | assignedName) COMPARISON (mathValue | assignedName);
+    | (value | assignedName) COMPARISON (value | assignedName);
 
 // tokens
 // reserved words
@@ -55,6 +54,7 @@ REAL_T    : 'Float';
 AND       : 'and';
 OR        : 'or';
 COMPARISON: '<' | '<=' | '>' | '>=' | '==';
+SINGLECOM : 'not';
 
 // utilities
 ID      : [a-zA-Z_] [a-zA-Z0-9_]*;

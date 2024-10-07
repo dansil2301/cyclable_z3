@@ -5,10 +5,26 @@ from typing import Any
 
 class ConverterHelper:
     @staticmethod
-    def convert_to_type(var_type: Any, var_value: str) -> Any:
-        if type(var_type) is z3.Int:
-            return int(var_value)
-        elif type(var_type) is z3.Bool:
-            return bool(var_value)
-        elif type(var_type) is z3.Real:
-            return float(var_value)
+    def logic_doubles(operator, left, right):
+        if operator == '<':
+            return left < right
+        elif operator == '<=':
+            return left <= right
+        elif operator == '>':
+            return left > right
+        elif operator == '>=':
+            return left >= right
+        elif operator == '==':
+            return left == right
+        elif operator == 'and':
+            return z3.And(left, right)
+        elif operator == 'or':
+            return z3.Or(left, right)
+        else:
+            return None
+
+    @staticmethod
+    def logic_single(operator, v1):
+        if operator == 'not':
+            return z3.Not(v1)
+
