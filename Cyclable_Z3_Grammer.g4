@@ -9,7 +9,8 @@ statement:
   | constAssignment ENDLINE
   | varCreation ENDLINE
   | functionDeclaration ENDLINE
-  | functionDefinition;
+  | functionDefinition
+  | logicalChain;
 
 check            : CHECK;
 print            : PRINT varName;
@@ -27,6 +28,10 @@ types             : TYPES;
 value             : NUMBER | BOOL;
 varName           : ID;
 
+logicalChain      : logicalItem (LOGIC logicalItem)*;
+logicalItem       : nameValue COMPARISON nameValue;
+nameValue         : value | varName;
+
 // tokens
 // reserved words
 CHECK     : 'check';
@@ -40,6 +45,9 @@ TYPES     : INT_T | BOOL_T | REAL_T;
 INT_T     : 'Int';
 BOOL_T    : 'Bool';
 REAL_T    : 'Float';
+
+LOGIC     : 'and' | 'or';
+COMPARISON: '<' | '<=' | '>' | '>=' | '==';
 
 // utilities
 ID      : [a-zA-Z_] [a-zA-Z0-9_]*;
