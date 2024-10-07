@@ -1,6 +1,8 @@
 const Int test = 10;
-const Int amountOfSq = 20;
+const Int amountOfSq = 11;
+Int find;
+
+find > test or (find <= amountOfSq or find == 0);
 
 check;
-print amountOfSq;
-print test;
+print find;

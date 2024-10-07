@@ -8,9 +8,9 @@ statement:
   | print ENDLINE
   | constAssignment ENDLINE
   | varCreation ENDLINE
+  | logicChain ENDLINE
   | functionDeclaration ENDLINE
-  | functionDefinition
-  | logicalChain;
+  | functionDefinition;
 
 check            : CHECK;
 print            : PRINT varName;
@@ -28,9 +28,15 @@ types             : TYPES;
 value             : NUMBER | BOOL;
 varName           : ID;
 
-logicalChain      : logicalItem (LOGIC logicalItem)*;
-logicalItem       : nameValue COMPARISON nameValue;
-nameValue         : value | varName;
+mathValue         : NUMBER | BOOL;
+assignedName      : ID;
+
+logicChain        : logicalItem;
+logicalItem       :
+    '(' logicalItem ')'
+    | logicalItem AND logicalItem
+    | logicalItem OR logicalItem
+    | (mathValue | assignedName) COMPARISON (mathValue | assignedName);
 
 // tokens
 // reserved words
@@ -46,7 +52,8 @@ INT_T     : 'Int';
 BOOL_T    : 'Bool';
 REAL_T    : 'Float';
 
-LOGIC     : 'and' | 'or';
+AND       : 'and';
+OR        : 'or';
 COMPARISON: '<' | '<=' | '>' | '>=' | '==';
 
 // utilities
@@ -54,6 +61,7 @@ ID      : [a-zA-Z_] [a-zA-Z0-9_]*;
 
 ASSIGN  : '=';
 
+fragment IDVALUE: NUMBER | BOOL | ID;
 fragment INT: [0-9]+;
 NUMBER: INT ('.'(INT)?)?;
 BOOL  : 'True' | 'False';
