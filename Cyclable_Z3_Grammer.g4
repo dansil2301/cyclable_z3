@@ -22,7 +22,7 @@ functionDeclaration: FUN '[' argList ']' ID;
 argList: TYPES (',' TYPES)*;
 
 functionDefinition: TYPES FUNCION ID '(' parametersFunction ')' '{' statement* '}';
-parametersFunction: (TYPES ID)* (',' TYPES ID)*;
+parametersFunction: (TYPES ID) (',' TYPES ID)*;
 
 types             : TYPES;
 value             : NUMBER | BOOL;
