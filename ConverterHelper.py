@@ -20,6 +20,8 @@ class ConverterHelper:
             return z3.And(left, right)
         elif operator == 'or':
             return z3.Or(left, right)
+        elif operator == '->':
+            return z3.Implies(left, right)
         else:
             return None
 

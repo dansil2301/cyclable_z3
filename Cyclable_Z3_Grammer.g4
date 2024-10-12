@@ -25,16 +25,18 @@ functionDefinition: TYPES FUNCION ID '(' parametersFunction ')' '{' statement* '
 parametersFunction: (TYPES ID) (',' TYPES ID)*;
 
 types             : TYPES;
-value             : NUMBER | BOOL;
+value             : BOOL | NUMBER;
 varName           : ID;
 assignedName      : ID;
 
 logicChain        : logicalItem;
 logicalItem       :
     '(' logicalItem ')'
-    | SINGLECOM logicalItem
+    | NOT logicalItem
     | logicalItem AND logicalItem
     | logicalItem OR logicalItem
+    | logicalItem IMPLICATIONS logicalItem
+    | (value | assignedName) IMPLICATIONS (value | assignedName)
     | (value | assignedName) COMPARISON (value | assignedName);
 
 // tokens
@@ -51,21 +53,22 @@ INT_T     : 'Int';
 BOOL_T    : 'Bool';
 REAL_T    : 'Float';
 
+NOT : 'not';
 AND       : 'and';
 OR        : 'or';
+IMPLICATIONS: '->';
 COMPARISON: '<' | '<=' | '>' | '>=' | '==';
-SINGLECOM : 'not';
 
 // utilities
-ID      : [a-zA-Z_] [a-zA-Z0-9_]*;
-
-ASSIGN  : '=';
-
 fragment IDVALUE: NUMBER | BOOL | ID;
 fragment INT: [0-9]+;
 NUMBER: INT ('.'(INT)?)?;
 BOOL  : 'True' | 'False';
 
+ASSIGN  : '=';
+
 ENDLINE: ';';
+
+ID      : [a-zA-Z_] [a-zA-Z0-9_]*;
 
 WS: [ \t\r\n]+ -> skip;

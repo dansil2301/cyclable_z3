@@ -77,7 +77,10 @@ class Z3_visitor(Cyclable_Z3_GrammerVisitor):
             return None
 
     def visitValue(self, ctx: Cyclable_Z3_GrammerParser.ValueContext):
-        return ctx.getText()
+        value = ctx.getText()
+        if 'True' == value or 'False' == value:
+            value = bool(value)
+        return value
 
     def visitVarName(self, ctx: Cyclable_Z3_GrammerParser.VarNameContext):
         return ctx.getText()

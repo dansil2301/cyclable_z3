@@ -2,7 +2,8 @@ const Int test = 10;
 const Int amountOfSq = 11;
 Int find;
 
-not find < 3;
+True -> True;
 
 check;
 print find;
+print test;
