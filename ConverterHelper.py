@@ -30,3 +30,16 @@ class ConverterHelper:
         if operator == 'not':
             return z3.Not(v1)
 
+    @staticmethod
+    def math_doubles(operator, left, right):
+        if operator == '+':
+            return left + right
+        elif operator == '-':
+            return left - right
+        elif operator == '*':
+            return left * right
+        elif operator == '<<':
+            return left << right
+        else:
+            return None
+

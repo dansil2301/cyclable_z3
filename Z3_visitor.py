@@ -33,8 +33,7 @@ class Z3_visitor(Cyclable_Z3_GrammerVisitor):
     def visitConstAssignment(self, ctx: Cyclable_Z3_GrammerParser.ConstAssignmentContext):
         var_type = self.visit(ctx.types())
         var_name = self.visit(ctx.varName())
-        var_value = self.visit(ctx.value())
-
+        var_value = self.visit(ctx.expr())
         var = var_type(var_name)
         self.solver.add(var == var_value)
         self.variables[var_name] = var
@@ -45,6 +44,8 @@ class Z3_visitor(Cyclable_Z3_GrammerVisitor):
 
         var = var_type(var_name)
         self.variables[var_name] = var
+
+
 
     # logical operation
     def visitLogicChain(self, ctx: Cyclable_Z3_GrammerParser.LogicChainContext):
@@ -63,6 +64,22 @@ class Z3_visitor(Cyclable_Z3_GrammerVisitor):
             operator = ctx.getChild(0).getText()
             v1 = self.visit(ctx.getChild(1))
             return ConverterHelper.logic_single(operator, v1)
+
+    def visitMathOperation(self, ctx: Cyclable_Z3_GrammerParser.MathOperationContext):
+        return self.visit(ctx.expr())
+
+    def visitExpr(self, ctx: Cyclable_Z3_GrammerParser.ExprContext):
+        if ctx.getChildCount() == 3:
+            operator = ctx.getChild(1).getText()
+            v1 = self.visit(ctx.getChild(0))
+            v2 = self.visit(ctx.getChild(2))
+            return ConverterHelper.math_doubles(operator, v1, v2)
+        elif ctx.getChildCount() == 1:
+            token_text = ctx.getChild(0).getText()
+            if token_text.isdigit():
+                return int(token_text)
+            else:
+                return self.variables.get(token_text, None)
 
     # types, values, names, operators
     def visitTypes(self, ctx: Cyclable_Z3_GrammerParser.TypesContext):

@@ -9,13 +9,14 @@ statement:
   | constAssignment ENDLINE
   | varCreation ENDLINE
   | logicChain ENDLINE
+  | mathOperation ENDLINE
   | functionDeclaration ENDLINE
   | functionDefinition;
 
 check            : CHECK;
 print            : PRINT varName;
 
-constAssignment  : CONST types varName ASSIGN value;
+constAssignment  : CONST types varName ASSIGN expr;
 varCreation      : types varName;
 
 functionDeclaration: FUN '[' argList ']' ID;
@@ -36,8 +37,19 @@ logicalItem       :
     | logicalItem AND logicalItem
     | logicalItem OR logicalItem
     | logicalItem IMPLICATIONS logicalItem
-    | (value | assignedName) IMPLICATIONS (value | assignedName)
-    | (value | assignedName) COMPARISON (value | assignedName);
+    | (expr | assignedName) IMPLICATIONS (expr | assignedName)
+    | (expr | assignedName) COMPARISON (expr | assignedName);
+
+mathOperation     : expr;
+expr              :
+     expr '+' expr
+   | expr '*' expr
+   | expr '-' expr
+   | expr '<<' expr
+   | ID
+   | NUMBER;
+
+
 
 // tokens
 // reserved words

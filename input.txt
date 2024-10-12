@@ -1,9 +1,10 @@
 const Int test = 10;
 const Int amountOfSq = 11;
-Int find;
 
-True -> True;
+const Int t = 1 << 2;
+2 + 2 < 4;
+
 
 check;
-print find;
+print t;
 print test;
