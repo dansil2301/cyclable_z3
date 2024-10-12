@@ -45,7 +45,21 @@ class Z3_visitor(Cyclable_Z3_GrammerVisitor):
         var = var_type(var_name)
         self.variables[var_name] = var
 
+    def visitFunctionDeclaration(self, ctx: Cyclable_Z3_GrammerParser.FunctionDeclarationContext):
+        var_return_type = self.visit(ctx.types())
+        var_name = self.visit(ctx.varName())
+        parameters = self.visit(ctx.argList())
 
+        chain_parameters = parameters.append(var_return_type)
+        func = z3.Function(var_name, *chain_parameters)
+        pass
+
+    def visitArgList(self, ctx: Cyclable_Z3_GrammerParser.ArgListContext):
+        lst_types = []
+        for i in range(ctx.getChildCount()):
+            if ctx.getChild(i).getText() != ',':
+                lst_types.append(self.visit(ctx.getChild(i)))
+        return lst_types
 
     # logical operation
     def visitLogicChain(self, ctx: Cyclable_Z3_GrammerParser.LogicChainContext):

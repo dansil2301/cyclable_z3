@@ -19,8 +19,8 @@ print            : PRINT varName;
 constAssignment  : CONST types varName ASSIGN expr;
 varCreation      : types varName;
 
-functionDeclaration: FUN '[' argList ']' ID;
-argList: TYPES (',' TYPES)*;
+functionDeclaration: FUN '[' argList ']' types varName;
+argList: types (',' types)*;
 
 functionDefinition: TYPES FUNCION ID '(' parametersFunction ')' '{' statement* '}';
 parametersFunction: (TYPES ID) (',' TYPES ID)*;
@@ -29,6 +29,8 @@ types             : TYPES;
 value             : BOOL | NUMBER;
 varName           : ID;
 assignedName      : ID;
+assignedDecFun    : ID '[' parameters ']';
+parameters        : (value | varName) (',' (value | varName))*;
 
 logicChain        : logicalItem;
 logicalItem       :
@@ -37,8 +39,8 @@ logicalItem       :
     | logicalItem AND logicalItem
     | logicalItem OR logicalItem
     | logicalItem IMPLICATIONS logicalItem
-    | (expr | assignedName) IMPLICATIONS (expr | assignedName)
-    | (expr | assignedName) COMPARISON (expr | assignedName);
+    | (expr | assignedName | assignedDecFun) IMPLICATIONS (expr | assignedName | assignedDecFun)
+    | (expr | assignedName | assignedDecFun) COMPARISON (expr | assignedName | assignedDecFun);
 
 mathOperation     : expr;
 expr              :
@@ -48,8 +50,6 @@ expr              :
    | expr '<<' expr
    | ID
    | NUMBER;
-
-
 
 // tokens
 // reserved words

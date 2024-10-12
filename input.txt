@@ -4,7 +4,6 @@ const Int amountOfSq = 11;
 const Int t = 1 << 2;
 2 + 2 < 4;
 
-
 check;
 print t;
 print test;
