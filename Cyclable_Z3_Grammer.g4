@@ -19,7 +19,7 @@ print            : PRINT (varName | decFunName);
 constAssignment  : CONST types varName ASSIGN expr;
 varCreation      : types varName;
 
-functionDeclaration: FUN '[' argList ']' types varName;
+functionDeclaration: FUN '[' argList ']' z3Type varName;
 argList: z3Type (',' z3Type)*;
 
 functionDefinition: TYPES FUNCION ID '(' parametersFunction ')' '{' statement* '}';

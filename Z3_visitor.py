@@ -23,17 +23,20 @@ class Z3_visitor(Cyclable_Z3_GrammerVisitor):
 
     def visitPrint(self, ctx: Cyclable_Z3_GrammerParser.PrintContext):
         var_type = ctx.getChild(1)
-        if type(var_type) == ctx.varName:
+        if type(var_type) is Cyclable_Z3_GrammerParser.varName:
             var_name = self.visit(ctx.varName())
             var = self.variables[var_name]
             if self.model:
                 print(f'{var_name}: {self.model[var]}')
             else:
                 print(f'{var_name}: {None}')
-        if type(var_type) == ctx.decFunName():
+        if type(var_type) is Cyclable_Z3_GrammerParser.DecFunNameContext:
             func_name, lst_parameters = self.visit(ctx.decFunName())
             func = self.variables[func_name]
-            print(f'{func_name}[{lst_parameters}]: {self.model.eval(func(*lst_parameters))}')
+            if self.model:
+                print(f'{func_name}{lst_parameters}: {self.model.eval(func(*lst_parameters))}')
+            else:
+                print(f'{func_name}{lst_parameters}: {None}')
 
     # Variables main logic
     def visitConstAssignment(self, ctx: Cyclable_Z3_GrammerParser.ConstAssignmentContext):
@@ -53,7 +56,7 @@ class Z3_visitor(Cyclable_Z3_GrammerVisitor):
         self.variables[var_name] = var
 
     def visitFunctionDeclaration(self, ctx: Cyclable_Z3_GrammerParser.FunctionDeclarationContext):
-        func_return_type = self.visit(ctx.types())
+        func_return_type = self.visit(ctx.z3Type())
         func_name = self.visit(ctx.varName())
         parameters = self.visit(ctx.argList())
 
@@ -115,7 +118,16 @@ class Z3_visitor(Cyclable_Z3_GrammerVisitor):
         else:
             return None
 
-    def visitZ
+    def visitZ3Type(self, ctx: Cyclable_Z3_GrammerParser.Z3TypeContext):
+        var_type = ctx.getText()
+        if var_type == 'Int':
+            return z3.IntSort()
+        elif var_type == 'Bool':
+            return z3.BoolSort()
+        elif var_type == 'Float':
+            return z3.RealSort()
+        else:
+            return None
 
     def visitValue(self, ctx: Cyclable_Z3_GrammerParser.ValueContext):
         value = ctx.getText()
@@ -133,9 +145,9 @@ class Z3_visitor(Cyclable_Z3_GrammerVisitor):
     def visitAssignedDecFun(self, ctx: Cyclable_Z3_GrammerParser.AssignedDecFunContext):
         func_name = ctx.getChild(0).getText()
         lst_parameters = self.visit(ctx.parameters())
+
         decl_func = self.variables[func_name]
-        decl_func(*lst_parameters)
-        return decl_func
+        return decl_func(*lst_parameters)
 
     def visitDecFunName(self, ctx: Cyclable_Z3_GrammerParser.DecFunNameContext):
         func_name = ctx.getChild(0).getText()
@@ -145,6 +157,6 @@ class Z3_visitor(Cyclable_Z3_GrammerVisitor):
     def visitParameters(self, ctx: Cyclable_Z3_GrammerParser.ParametersContext):
         lst_parameters = []
         for i in range(ctx.getChildCount()):
-            lst_parameters.append(self.visit(ctx.getChild(i)))
+            if ctx.getChild(i).getText() != ",":
+                lst_parameters.append(self.visit(ctx.getChild(i)))
         return lst_parameters
-
