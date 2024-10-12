@@ -12,7 +12,12 @@ class Z3_visitor(Cyclable_Z3_GrammerVisitor):
         self.solver = z3.Solver()
         self.model = None
 
+        self.isLocal = False
         self.variables = dict()
+        self.local_variables = dict()
+        self.functions = dict()
+
+        self.currentFunc = None
 
     def visitCheck(self, ctx: Cyclable_Z3_GrammerParser.CheckContext):
         print(self.solver.check())
@@ -23,7 +28,7 @@ class Z3_visitor(Cyclable_Z3_GrammerVisitor):
 
     def visitPrint(self, ctx: Cyclable_Z3_GrammerParser.PrintContext):
         var_type = ctx.getChild(1)
-        if type(var_type) is Cyclable_Z3_GrammerParser.varName:
+        if type(var_type) is Cyclable_Z3_GrammerParser.VarNameContext:
             var_name = self.visit(ctx.varName())
             var = self.variables[var_name]
             if self.model:
@@ -75,7 +80,10 @@ class Z3_visitor(Cyclable_Z3_GrammerVisitor):
     # logical operation
     def visitLogicChain(self, ctx: Cyclable_Z3_GrammerParser.LogicChainContext):
         logic_chain = self.visit(ctx.logicalItem())
-        self.solver.add(logic_chain)
+        if self.isLocal:
+            return logic_chain
+        else:
+            self.solver.add(logic_chain)
 
     def visitLogicalItem(self, ctx: Cyclable_Z3_GrammerParser.LogicalItemContext):
         if ctx.getChildCount() == 3:
@@ -89,12 +97,17 @@ class Z3_visitor(Cyclable_Z3_GrammerVisitor):
             operator = ctx.getChild(0).getText()
             v1 = self.visit(ctx.getChild(1))
             return ConverterHelper.logic_single(operator, v1)
+        elif ctx.getChildCount() == 1:
+            return self.visit(ctx.getChild(0))
 
+    # Math operation
     def visitMathOperation(self, ctx: Cyclable_Z3_GrammerParser.MathOperationContext):
         return self.visit(ctx.expr())
 
     def visitExpr(self, ctx: Cyclable_Z3_GrammerParser.ExprContext):
         if ctx.getChildCount() == 3:
+            if ctx.getChild(0).getText() == "(":
+                return self.visit(ctx.getChild(1))
             operator = ctx.getChild(1).getText()
             v1 = self.visit(ctx.getChild(0))
             v2 = self.visit(ctx.getChild(2))
@@ -105,6 +118,39 @@ class Z3_visitor(Cyclable_Z3_GrammerVisitor):
                 return int(token_text)
             else:
                 return self.variables.get(token_text, None)
+
+    # Functions
+    def visitFunctionDefinition(self, ctx: Cyclable_Z3_GrammerParser.FunctionDefinitionContext):
+        func_return_type = self.visit(ctx.z3Type())
+        func_name = self.visit(ctx.varName())
+        function_parameters = self.visit(ctx.parametersFunction())
+        lst_parameters = list(function_parameters.values())
+        lst_parameters.append(func_return_type)
+
+        self.isLocal = True
+        self.local_variables = ConverterHelper.convert_z3types_to_types(function_parameters)
+        self.currentFunc = z3.Function(func_name, *lst_parameters)
+
+        self.visit(ctx.functionBody())
+        self.isLocal = False
+
+    def visitFunctionBody(self, ctx: Cyclable_Z3_GrammerParser.FunctionBodyContext):
+        for i in range(ctx.getChildCount()):
+            statement = self.visit(ctx.getChild(i))
+            print(self.currentFunc == statement)
+            print(type(self.currentFunc))
+            # save function and statements to later insert parameters
+
+    def visitFunctionStatement(self, ctx: Cyclable_Z3_GrammerParser.FunctionStatementContext):
+        return self.visit(ctx.getChild(0))
+
+    def visitParametersFunction(self, ctx: Cyclable_Z3_GrammerParser.ParametersFunctionContext):
+        local_vars = {}
+        for i in range(0, ctx.getChildCount(), 3):
+            var_type = self.visit(ctx.getChild(i))
+            var_name = self.visit(ctx.getChild(i + 1))
+            local_vars[var_name] = var_type
+        return local_vars
 
     # types, values, names, operators
     def visitTypes(self, ctx: Cyclable_Z3_GrammerParser.TypesContext):
@@ -140,7 +186,13 @@ class Z3_visitor(Cyclable_Z3_GrammerVisitor):
 
     def visitAssignedName(self, ctx: Cyclable_Z3_GrammerParser.AssignedNameContext):
         var_name = ctx.getText()
-        return self.variables[var_name]
+
+        if self.isLocal:
+            var = self.local_variables[var_name]
+        else:
+            var = self.variables[var_name]
+
+        return var
 
     def visitAssignedDecFun(self, ctx: Cyclable_Z3_GrammerParser.AssignedDecFunContext):
         func_name = ctx.getChild(0).getText()

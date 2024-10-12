@@ -3,8 +3,12 @@ const Int amountOfSq = 0;
 Fun[Int, Int] Int name;
 const Int t = 1 << 2;
 
-name[0, 0] == 1;
+Bool function sum(Int a, Int b)
+{
+    a >= b;
+}
+
+amountOfSq + 1 == 1;
 
 check;
-print name[0, 0];
-
+print amountOfSq;

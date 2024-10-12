@@ -16,6 +16,8 @@ class ConverterHelper:
             return left >= right
         elif operator == '==':
             return left == right
+        elif operator == '!=':
+            return left != right
         elif operator == 'and':
             return z3.And(left, right)
         elif operator == 'or':
@@ -42,4 +44,18 @@ class ConverterHelper:
             return left << right
         else:
             return None
+
+    @staticmethod
+    def convert_z3types_to_types(types):
+        converted_types = {}
+        for z3type_name in types:
+            if str(types[z3type_name]) == "Int":
+                converted_types[z3type_name] = z3.Int(z3type_name)
+            elif str(types[z3type_name]) == "Bool":
+                converted_types[z3type_name] = z3.Bool(z3type_name)
+            elif str(types[z3type_name]) == "Real":
+                converted_types[z3type_name] = z3.Real(z3type_name)
+            else:
+                converted_types[z3type_name] = None
+        return converted_types
 

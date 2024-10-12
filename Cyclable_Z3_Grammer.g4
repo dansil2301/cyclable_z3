@@ -13,6 +13,10 @@ statement:
   | functionDeclaration ENDLINE
   | functionDefinition;
 
+functionStatement:
+  logicChain ENDLINE
+  | mathOperation ENDLINE;
+
 check            : CHECK;
 print            : PRINT (varName | decFunName);
 
@@ -22,8 +26,9 @@ varCreation      : types varName;
 functionDeclaration: FUN '[' argList ']' z3Type varName;
 argList: z3Type (',' z3Type)*;
 
-functionDefinition: TYPES FUNCION ID '(' parametersFunction ')' '{' statement* '}';
-parametersFunction: (TYPES ID) (',' TYPES ID)*;
+functionDefinition: z3Type FUNCION varName '(' parametersFunction ')' '{' functionBody '}';
+functionBody      : functionStatement*;
+parametersFunction: (z3Type varName) (',' z3Type varName)*;
 
 z3Type            : TYPES;
 types             : TYPES;
@@ -32,6 +37,7 @@ varName           : ID;
 assignedName      : ID;
 decFunName        : ID '[' parameters ']';
 assignedDecFun    : ID '[' parameters ']';
+callFunction      : ID '(' parameters ')';
 parameters        : (value | varName) (',' (value | varName))*;
 
 logicChain        : logicalItem;
@@ -41,17 +47,19 @@ logicalItem       :
     | logicalItem AND logicalItem
     | logicalItem OR logicalItem
     | logicalItem IMPLICATIONS logicalItem
-    | (expr | assignedName | assignedDecFun) IMPLICATIONS (expr | assignedName | assignedDecFun)
-    | (expr | assignedName | assignedDecFun) COMPARISON (expr | assignedName | assignedDecFun);
+    | logicalItem IMPLICATIONS logicalItem
+    | logicalItem COMPARISON logicalItem
+    | (value | assignedName | expr | assignedDecFun | callFunction);
 
 mathOperation     : expr;
 expr              :
-     expr '+' expr
+   '(' expr ')'
+   | expr '+' expr
    | expr '*' expr
    | expr '-' expr
    | expr '<<' expr
-   | ID
-   | NUMBER;
+   | assignedName
+   | value;
 
 // tokens
 // reserved words
@@ -71,7 +79,7 @@ NOT : 'not';
 AND       : 'and';
 OR        : 'or';
 IMPLICATIONS: '->';
-COMPARISON: '<' | '<=' | '>' | '>=' | '==';
+COMPARISON: '<' | '<=' | '>' | '>=' | '==' | '!=';
 
 // utilities
 fragment IDVALUE: NUMBER | BOOL | ID;
