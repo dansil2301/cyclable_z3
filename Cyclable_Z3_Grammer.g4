@@ -14,7 +14,7 @@ statement:
   | functionDefinition;
 
 check            : CHECK;
-print            : PRINT varName;
+print            : PRINT (varName | decFunName);
 
 constAssignment  : CONST types varName ASSIGN expr;
 varCreation      : types varName;
@@ -29,6 +29,7 @@ types             : TYPES;
 value             : BOOL | NUMBER;
 varName           : ID;
 assignedName      : ID;
+decFunName        : ID '[' parameters ']';
 assignedDecFun    : ID '[' parameters ']';
 parameters        : (value | varName) (',' (value | varName))*;
 

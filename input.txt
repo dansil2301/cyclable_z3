@@ -1,9 +1,10 @@
 const Int test = 10;
 const Int amountOfSq = 11;
-
+Fun[Int, Int] Int name;
 const Int t = 1 << 2;
+
 2 + 2 < 4;
 
 check;
-print t;
-print test;
+print name[0, 0];
+
