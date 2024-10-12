@@ -3,7 +3,7 @@ const Int amountOfSq = 11;
 Fun[Int, Int] Int name;
 const Int t = 1 << 2;
 
-2 + 2 < 4;
+2 + 1 < 4;
 
 check;
 print name[0, 0];

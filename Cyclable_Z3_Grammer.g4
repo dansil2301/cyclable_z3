@@ -20,11 +20,12 @@ constAssignment  : CONST types varName ASSIGN expr;
 varCreation      : types varName;
 
 functionDeclaration: FUN '[' argList ']' types varName;
-argList: types (',' types)*;
+argList: z3Type (',' z3Type)*;
 
 functionDefinition: TYPES FUNCION ID '(' parametersFunction ')' '{' statement* '}';
 parametersFunction: (TYPES ID) (',' TYPES ID)*;
 
+z3Type            : TYPES;
 types             : TYPES;
 value             : BOOL | NUMBER;
 varName           : ID;

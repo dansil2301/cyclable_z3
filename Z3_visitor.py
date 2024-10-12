@@ -57,7 +57,8 @@ class Z3_visitor(Cyclable_Z3_GrammerVisitor):
         func_name = self.visit(ctx.varName())
         parameters = self.visit(ctx.argList())
 
-        chain_parameters = parameters.append(func_return_type)
+        parameters.append(func_return_type)
+        chain_parameters = parameters
         func = z3.Function(func_name, *chain_parameters)
         self.variables[func_name] = func
 
@@ -113,6 +114,8 @@ class Z3_visitor(Cyclable_Z3_GrammerVisitor):
             return z3.Real
         else:
             return None
+
+    def visitZ
 
     def visitValue(self, ctx: Cyclable_Z3_GrammerParser.ValueContext):
         value = ctx.getText()
