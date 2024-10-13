@@ -22,10 +22,10 @@ functionStatement:
   | distinct;
 
 check            : CHECK;
-print            : PRINT (varName | decFunName);
+print            : PRINT varList;
 
 distinct         : DISTINCT varList;
-varList          : assignedName (',' assignedName)*;
+varList          : (assignedName | decFunName) (',' (assignedName | decFunName))*;
 
 constAssignment  : CONST types varName ASSIGN expr;
 varCreation      : types varName;

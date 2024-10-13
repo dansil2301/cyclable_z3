@@ -91,3 +91,12 @@ class ConverterHelper:
 
         return expr
 
+    @staticmethod
+    def get_var_func(var, variables):
+        if isinstance(var, z3.ArithRef):
+            return var
+        if isinstance(var, tuple):
+            func_name, lst_parameters = var
+            func = variables[func_name]
+            return func(*lst_parameters)
+

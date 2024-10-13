@@ -30,21 +30,20 @@ class Z3_visitor(Cyclable_Z3_GrammerVisitor):
             self.model = None
 
     def visitPrint(self, ctx: Cyclable_Z3_GrammerParser.PrintContext):
-        var_type = ctx.getChild(1)
-        if type(var_type) is Cyclable_Z3_GrammerParser.VarNameContext:
-            var_name = self.visit(ctx.varName())
-            var = self.variables[var_name]
-            if self.model:
-                print(f'{var_name}: {self.model[var]}')
-            else:
-                print(f'{var_name}: {None}')
-        if type(var_type) is Cyclable_Z3_GrammerParser.DecFunNameContext:
-            func_name, lst_parameters = self.visit(ctx.decFunName())
-            func = self.variables[func_name]
-            if self.model:
-                print(f'{func_name}{lst_parameters}: {self.model.eval(func(*lst_parameters))}')
-            else:
-                print(f'{func_name}{lst_parameters}: {None}')
+        lst_var = self.visit(ctx.varList())
+        for var in lst_var:
+            if isinstance(var, z3.ArithRef):
+                if self.model:
+                    print(f'{var}: {self.model[var]}')
+                else:
+                    print(f'{var}: {None}')
+            if isinstance(var, tuple):
+                func_name, lst_parameters = var
+                func = self.variables[func_name]
+                if self.model:
+                    print(f'{func_name}{lst_parameters}: {self.model.eval(func(*lst_parameters))}')
+                else:
+                    print(f'{func_name}{lst_parameters}: {None}')
 
     '''
     helper functions
@@ -54,14 +53,10 @@ class Z3_visitor(Cyclable_Z3_GrammerVisitor):
         n = len(lst_var)
         for i in range(n):
             for j in range(i + 1, n):
-                self.solver.add(lst_var[i] != lst_var[j])
+                v1 = ConverterHelper.get_var_func(lst_var[i], self.variables)
+                v2 = ConverterHelper.get_var_func(lst_var[j], self.variables)
+                self.solver.add(v1 != v2)
 
-    def visitVarList(self, ctx: Cyclable_Z3_GrammerParser.VarListContext):
-        lst_var = []
-        for i in range(ctx.getChildCount()):
-            if ctx.getChild(i).getText() != ',':
-                lst_var.append(self.visit(ctx.getChild(i)))
-        return lst_var
 
     '''
     variables assignment
@@ -270,3 +265,10 @@ class Z3_visitor(Cyclable_Z3_GrammerVisitor):
             if ctx.getChild(i).getText() != ",":
                 lst_parameters.append(self.visit(ctx.getChild(i)))
         return lst_parameters
+
+    def visitVarList(self, ctx: Cyclable_Z3_GrammerParser.VarListContext):
+        lst_var = []
+        for i in range(ctx.getChildCount()):
+            if ctx.getChild(i).getText() != ',':
+                lst_var.append(self.visit(ctx.getChild(i)))
+        return lst_var
