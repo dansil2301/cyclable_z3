@@ -1,25 +1,21 @@
-Int test;
-const Int x = 1;
-Fun[Int] Int test1;
-const Int a = 2;
-Int b;
+Int A;
+Int B;
+Int C;
+Int X;
+Int Y;
+Int Z;
 
-Int function sum(Int a, Int b)
-{
-    a + b;
-}
+1 < A;
+1 < B;
+1 < C;
 
-Bool function test(Int a, Int b)
-{
-    a > b;
-}
+distinct A, B, C;
 
-test1[0] == sum(x, 2);
-test == sum(a, 3);
-sum(b, 3);
-test(3, a);
+X * X == A + B;
+Y * Y == B + C;
+Z * Z == C + A;
 
 check;
-print test1[0];
-print test;
-print b;
+print A;
+print B;
+print C;

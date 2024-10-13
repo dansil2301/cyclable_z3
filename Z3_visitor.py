@@ -47,6 +47,23 @@ class Z3_visitor(Cyclable_Z3_GrammerVisitor):
                 print(f'{func_name}{lst_parameters}: {None}')
 
     '''
+    helper functions
+    '''
+    def visitDistinct(self, ctx: Cyclable_Z3_GrammerParser.DistinctContext):
+        lst_var = self.visit(ctx.varList())
+        n = len(lst_var)
+        for i in range(n):
+            for j in range(i + 1, n):
+                self.solver.add(lst_var[i] != lst_var[j])
+
+    def visitVarList(self, ctx: Cyclable_Z3_GrammerParser.VarListContext):
+        lst_var = []
+        for i in range(ctx.getChildCount()):
+            if ctx.getChild(i).getText() != ',':
+                lst_var.append(self.visit(ctx.getChild(i)))
+        return lst_var
+
+    '''
     variables assignment
     '''
     def visitConstAssignment(self, ctx: Cyclable_Z3_GrammerParser.ConstAssignmentContext):

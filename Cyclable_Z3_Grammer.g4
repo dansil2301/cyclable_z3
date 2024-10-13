@@ -12,14 +12,20 @@ statement:
   | mathOperation ENDLINE
   | logicChain ENDLINE
   | functionDeclaration ENDLINE
-  | functionDefinition;
+  | distinct ENDLINE
+  | functionDefinition
+  ;
 
 functionStatement:
   mathOperation ENDLINE
-  | logicChain ENDLINE;
+  | logicChain ENDLINE
+  | distinct;
 
 check            : CHECK;
 print            : PRINT (varName | decFunName);
+
+distinct         : DISTINCT varList;
+varList          : assignedName (',' assignedName)*;
 
 constAssignment  : CONST types varName ASSIGN expr;
 varCreation      : types varName;
@@ -70,6 +76,8 @@ PRINT     : 'print';
 CONST     : 'const';
 FUN       : 'Fun';
 FUNCION   : 'function' ;
+
+DISTINCT  : 'distinct';
 
 TYPES     : INT_T | BOOL_T | REAL_T;
 INT_T     : 'Int';
