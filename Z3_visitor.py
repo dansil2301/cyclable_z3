@@ -19,6 +19,9 @@ class Z3_visitor(Cyclable_Z3_GrammerVisitor):
 
         self.currentFunc = None
 
+    '''
+    basic commands
+    '''
     def visitCheck(self, ctx: Cyclable_Z3_GrammerParser.CheckContext):
         print(self.solver.check())
         try:
@@ -43,7 +46,9 @@ class Z3_visitor(Cyclable_Z3_GrammerVisitor):
             else:
                 print(f'{func_name}{lst_parameters}: {None}')
 
-    # Variables main logic
+    '''
+    variables assignment
+    '''
     def visitConstAssignment(self, ctx: Cyclable_Z3_GrammerParser.ConstAssignmentContext):
         var_type = self.visit(ctx.types())
         var_name = self.visit(ctx.varName())
@@ -77,7 +82,9 @@ class Z3_visitor(Cyclable_Z3_GrammerVisitor):
                 lst_types.append(self.visit(ctx.getChild(i)))
         return lst_types
 
-    # logical operation
+    '''
+    logical operation
+    '''
     def visitLogicChain(self, ctx: Cyclable_Z3_GrammerParser.LogicChainContext):
         logic_chain = self.visit(ctx.logicalItem())
         if self.isLocal:
@@ -100,7 +107,9 @@ class Z3_visitor(Cyclable_Z3_GrammerVisitor):
         elif ctx.getChildCount() == 1:
             return self.visit(ctx.getChild(0))
 
-    # Math operation
+    '''
+    Math operation
+    '''
     def visitMathOperation(self, ctx: Cyclable_Z3_GrammerParser.MathOperationContext):
         return self.visit(ctx.expr())
 
@@ -113,33 +122,37 @@ class Z3_visitor(Cyclable_Z3_GrammerVisitor):
             v2 = self.visit(ctx.getChild(2))
             return ConverterHelper.math_doubles(operator, v1, v2)
         elif ctx.getChildCount() == 1:
-            token_text = ctx.getChild(0).getText()
-            if token_text.isdigit():
-                return int(token_text)
-            else:
-                return self.variables.get(token_text, None)
+            return self.visit(ctx.getChild(0))
 
-    # Functions
+    '''
+    function creation and calling
+    '''
     def visitFunctionDefinition(self, ctx: Cyclable_Z3_GrammerParser.FunctionDefinitionContext):
         func_return_type = self.visit(ctx.z3Type())
         func_name = self.visit(ctx.varName())
         function_parameters = self.visit(ctx.parametersFunction())
+
         lst_parameters = list(function_parameters.values())
         lst_parameters.append(func_return_type)
 
-        self.isLocal = True
         self.local_variables = ConverterHelper.convert_z3types_to_types(function_parameters)
         self.currentFunc = z3.Function(func_name, *lst_parameters)
 
-        self.visit(ctx.functionBody())
+        self.isLocal = True
+        statements = self.visit(ctx.functionBody())
         self.isLocal = False
 
+        self.functions[func_name] = {
+            "function": self.currentFunc,
+            "variables": self.local_variables,
+            "statements": statements
+        }
+
     def visitFunctionBody(self, ctx: Cyclable_Z3_GrammerParser.FunctionBodyContext):
+        statements = []
         for i in range(ctx.getChildCount()):
-            statement = self.visit(ctx.getChild(i))
-            print(self.currentFunc == statement)
-            print(type(self.currentFunc))
-            # save function and statements to later insert parameters
+            statements.append(self.visit(ctx.getChild(i)))
+        return statements
 
     def visitFunctionStatement(self, ctx: Cyclable_Z3_GrammerParser.FunctionStatementContext):
         return self.visit(ctx.getChild(0))
@@ -152,7 +165,31 @@ class Z3_visitor(Cyclable_Z3_GrammerVisitor):
             local_vars[var_name] = var_type
         return local_vars
 
-    # types, values, names, operators
+    def visitCallFunction(self, ctx: Cyclable_Z3_GrammerParser.CallFunctionContext):
+        func_name = ctx.getChild(0).getText()
+        lst_parameters = self.visit(ctx.parameters())
+        func_parts = self.functions[func_name]
+
+        fresh_vars = ConverterHelper.fresh_z3types(func_parts['variables'])
+
+        fresh_statements = []
+        for statement in func_parts['statements']:
+            fresh_statement = ConverterHelper.replace_with_fresh_vars(statement, fresh_vars)
+            fresh_statements.append(fresh_statement)
+
+        for i, var in enumerate(fresh_vars):
+            if i < len(lst_parameters):
+                self.solver.add(fresh_vars[var] == lst_parameters[i])
+
+        function = func_parts['function'](*lst_parameters)
+        for statement in fresh_statements:
+            self.solver.add(function == statement)
+
+        return function
+
+    '''
+    types, values, names, operators
+    '''
     def visitTypes(self, ctx: Cyclable_Z3_GrammerParser.TypesContext):
         var_type = ctx.getText()
         if var_type == 'Int':
@@ -179,6 +216,10 @@ class Z3_visitor(Cyclable_Z3_GrammerVisitor):
         value = ctx.getText()
         if 'True' == value or 'False' == value:
             value = bool(value)
+        elif value.isdigit():
+            return int(value)
+        elif value.split('.')[0].isdigit() and value.split('.')[1].isdigit():
+            return float(value)
         return value
 
     def visitVarName(self, ctx: Cyclable_Z3_GrammerParser.VarNameContext):

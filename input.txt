@@ -1,14 +1,25 @@
-const Int test = 10;
-const Int amountOfSq = 0;
-Fun[Int, Int] Int name;
-const Int t = 1 << 2;
+Int test;
+const Int x = 1;
+Fun[Int] Int test1;
+const Int a = 2;
+Int b;
 
-Bool function sum(Int a, Int b)
+Int function sum(Int a, Int b)
 {
-    a >= b;
+    a + b;
 }
 
-amountOfSq + 1 == 1;
+Bool function test(Int a, Int b)
+{
+    a > b;
+}
+
+test1[0] == sum(x, 2);
+test == sum(a, 3);
+sum(b, 3);
+test(3, a);
 
 check;
-print amountOfSq;
+print test1[0];
+print test;
+print b;

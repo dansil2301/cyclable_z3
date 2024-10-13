@@ -6,16 +6,17 @@ compilationUnit: statement* EOF;
 statement:
     check ENDLINE
   | print ENDLINE
+  | callFunction ENDLINE
   | constAssignment ENDLINE
   | varCreation ENDLINE
-  | logicChain ENDLINE
   | mathOperation ENDLINE
+  | logicChain ENDLINE
   | functionDeclaration ENDLINE
   | functionDefinition;
 
 functionStatement:
-  logicChain ENDLINE
-  | mathOperation ENDLINE;
+  mathOperation ENDLINE
+  | logicChain ENDLINE;
 
 check            : CHECK;
 print            : PRINT (varName | decFunName);
@@ -38,7 +39,17 @@ assignedName      : ID;
 decFunName        : ID '[' parameters ']';
 assignedDecFun    : ID '[' parameters ']';
 callFunction      : ID '(' parameters ')';
-parameters        : (value | varName) (',' (value | varName))*;
+parameters        : (value | assignedName) (',' (value | assignedName))*;
+
+mathOperation     : expr;
+expr              :
+   '(' expr ')'
+   | expr '+' expr
+   | expr '*' expr
+   | expr '-' expr
+   | expr '<<' expr
+   | assignedName
+   | value;
 
 logicChain        : logicalItem;
 logicalItem       :
@@ -50,16 +61,6 @@ logicalItem       :
     | logicalItem IMPLICATIONS logicalItem
     | logicalItem COMPARISON logicalItem
     | (value | assignedName | expr | assignedDecFun | callFunction);
-
-mathOperation     : expr;
-expr              :
-   '(' expr ')'
-   | expr '+' expr
-   | expr '*' expr
-   | expr '-' expr
-   | expr '<<' expr
-   | assignedName
-   | value;
 
 // tokens
 // reserved words
