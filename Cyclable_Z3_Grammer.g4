@@ -13,6 +13,7 @@ statement:
   | logicChain ENDLINE
   | functionDeclaration ENDLINE
   | distinct ENDLINE
+  | repeater
   | functionDefinition
   ;
 
@@ -21,11 +22,19 @@ functionStatement:
   | logicChain ENDLINE
   | distinct;
 
+repeaterStatement:
+  mathOperation ENDLINE
+  | logicChain ENDLINE
+  | distinct
+  | callFunction ENDLINE
+  | print ENDLINE
+  ;
+
 check            : CHECK;
 print            : PRINT varList;
 
 distinct         : DISTINCT varList;
-varList          : (assignedName | decFunName) (',' (assignedName | decFunName))*;
+varList          : (inputValues) (',' (inputValues))*;
 
 constAssignment  : CONST types varName ASSIGN expr;
 varCreation      : types varName;
@@ -37,6 +46,12 @@ functionDefinition: z3Type FUNCION varName '(' parametersFunction ')' '{' functi
 functionBody      : functionStatement*;
 parametersFunction: (z3Type varName) (',' z3Type varName)*;
 
+repeater          : REPEATER varName IN (range | repeaetrVarList) '{' repeaterBody '}';
+repeaterBody      : repeaterStatement*;
+range             : RANGE '(' rangeValuesParams ')';
+rangeValuesParams : (inputValues) (',' (inputValues))?;
+repeaetrVarList   : '[' varList ']';
+
 z3Type            : TYPES;
 types             : TYPES;
 value             : BOOL | NUMBER;
@@ -45,7 +60,9 @@ assignedName      : ID;
 decFunName        : ID '[' parameters ']';
 assignedDecFun    : ID '[' parameters ']';
 callFunction      : ID '(' parameters ')';
-parameters        : (value | assignedName) (',' (value | assignedName))*;
+parameters        : inputValues (',' inputValues)*;
+
+inputValues       : value | assignedName | assignedDecFun;
 
 mathOperation     : expr;
 expr              :
@@ -76,6 +93,10 @@ PRINT     : 'print';
 CONST     : 'const';
 FUN       : 'Fun';
 FUNCION   : 'function' ;
+
+REPEATER  : 'repeat';
+IN        : 'in';
+RANGE     : 'range';
 
 DISTINCT  : 'distinct';
 
