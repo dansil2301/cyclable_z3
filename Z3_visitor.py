@@ -159,6 +159,7 @@ class Z3_visitor(Cyclable_Z3_GrammerVisitor):
             "variables": self.local_variables,
             "statements": statements
         }
+        self.local_variables = dict()
 
     def visitFunctionBody(self, ctx: Cyclable_Z3_GrammerParser.FunctionBodyContext):
         statements = []
@@ -198,6 +199,47 @@ class Z3_visitor(Cyclable_Z3_GrammerVisitor):
             self.solver.add(function == statement)
 
         return function
+
+    '''
+    repeater logic
+    '''
+    def visitRepeater(self, ctx: Cyclable_Z3_GrammerParser.RepeaterContext):
+        lst_cycle = self.visit(ctx.getChild(3))
+        var_name = self.visit(ctx.varName())
+
+        self.isLocal = True
+
+        for item in lst_cycle:
+            self.local_variables[var_name] = item
+            self.visit(ctx.repeaterBody())
+
+        self.local_variables = dict()
+        self.isLocal = False
+
+    def visitRepeaterBody(self, ctx: Cyclable_Z3_GrammerParser.RepeaterBodyContext):
+        statements = []
+        for i in range(ctx.getChildCount()):
+            result = self.visit(ctx.getChild(i))
+            if result is not None:
+                self.solver.add(result)
+        return statements
+
+    def visitRepeaterStatement(self, ctx: Cyclable_Z3_GrammerParser.RepeaterStatementContext):
+        return self.visit(ctx.getChild(0))
+
+    def visitRange(self, ctx: Cyclable_Z3_GrammerParser.RangeContext):
+        return self.visit(ctx.rangeValuesParams())
+
+    def visitRangeValuesParams(self, ctx: Cyclable_Z3_GrammerParser.RangeValuesParamsContext):
+        values_for_range = []
+        for i in range(ctx.getChildCount()):
+            if ctx.getChild(i).getText() != ',':
+                values_for_range.append(self.visit(ctx.getChild(i)))
+        return list(range(*values_for_range))
+
+    def visitRepeaterVarList(self, ctx: Cyclable_Z3_GrammerParser.RepeaterVarListContext):
+        return self.visit(ctx.getChild(1))
+
 
     '''
     types, values, names, operators
