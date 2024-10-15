@@ -21,16 +21,19 @@ Int function costTravel (Int from, Int to) {
     elif (from == 2 and to == 5) or (from == 5 and to == 2) {1;}
     elif (from == 3 and to == 4) or (from == 4 and to == 3) {5;}
     elif (from == 4 and to == 5) or (from == 5 and to == 4) {3;}
-    else {0;}
+    else {10;}
+}
+
+repeat i in range(5){
+    0 <= visit[i] and visit[i] <= 5;
+
+    if i < 5 {
+        canTravel(visit[i], visit[i + 1]);
+    }
+    else { 5 > 4; }
 }
 
 distinct visit[0], visit[1], visit[2], visit[3], visit[4], visit[5];
-
-canTravel(visit[0], visit[1]);
-canTravel(visit[1], visit[2]);
-canTravel(visit[2], visit[3]);
-canTravel(visit[3], visit[4]);
-canTravel(visit[4], visit[5]);
 
 total_cost ==
 costTravel(visit[0], visit[1]) +
@@ -39,6 +42,11 @@ costTravel(visit[2], visit[3]) +
 costTravel(visit[3], visit[4]) +
 costTravel(visit[4], visit[5]);
 
-check;
-print visit[0], visit[1], visit[2], visit[3], visit[4], visit[5];
+total_cost < 17;
 
+check;
+
+repeat i in range(6){
+    print visit[i];
+}
+print total_cost;

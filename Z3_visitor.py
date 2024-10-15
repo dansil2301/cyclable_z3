@@ -148,30 +148,11 @@ class Z3_visitor(Cyclable_Z3_GrammerVisitor):
             if ctx.getChild(i).getText() == "if":
                 condition = self.visit(ctx.getChild(i + 1))
                 statements = self.visit(ctx.getChild(i + 3))
-
-                if len(statements) == 1:
-                    statements = statements[0]
-                else:
-                    statements = z3.And(*statements)
-
-                if else_first is not None:
-                    ifelse_exp = z3.If(condition, statements, else_first)
-                else:
-                    ifelse_exp = z3.If(condition, statements, ifelse_exp)
+                ifelse_exp = ConverterHelper.get_expr(condition, statements, ifelse_exp, else_first)
             elif ctx.getChild(i).getText() == "elif":
                 condition = self.visit(ctx.getChild(i + 1))
                 statements = self.visit(ctx.getChild(i + 3))
-
-                if len(statements) == 1:
-                    statements = statements[0]
-                else:
-                    statements = z3.And(*statements)
-
-                if else_first is not None:
-                    ifelse_exp = z3.If(condition, statements, else_first)
-                    else_first = None
-                else:
-                    ifelse_exp = z3.If(condition, statements, ifelse_exp)
+                ifelse_exp = ConverterHelper.get_expr(condition, statements, ifelse_exp, else_first)
             elif ctx.getChild(i).getText() == "else":
                 statements = self.visit(ctx.getChild(i + 2))
 
@@ -181,7 +162,11 @@ class Z3_visitor(Cyclable_Z3_GrammerVisitor):
                     else_first = z3.And(*statements)
 
         self.isCollect = False
-        self.solver.add(ifelse_exp)
+
+        if self.isLocal or self.isCollect:
+            return ifelse_exp
+        else:
+            self.solver.add(ifelse_exp)
 
     def visitIfelseBody(self, ctx: Cyclable_Z3_GrammerParser.IfelseBodyContext):
         statements = []

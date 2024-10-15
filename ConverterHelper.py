@@ -100,3 +100,15 @@ class ConverterHelper:
             func = variables[func_name]
             return func(*lst_parameters)
 
+    @staticmethod
+    def get_expr(condition, statements, expr, else_first):
+        if len(statements) == 1:
+            statements = statements[0]
+        else:
+            statements = z3.And(*statements)
+
+        if expr is None:
+            return z3.If(condition, statements, else_first)
+        else:
+            return z3.If(condition, statements, expr)
+
