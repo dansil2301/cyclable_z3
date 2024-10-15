@@ -135,6 +135,30 @@ class Z3_visitor(Cyclable_Z3_GrammerVisitor):
             return ConverterHelper.math_doubles(operator, v1, v2)
         elif ctx.getChildCount() == 1:
             return self.visit(ctx.getChild(0))
+    '''
+    if elif else
+    '''
+    def visitIfelse(self, ctx: Cyclable_Z3_GrammerParser.IfelseContext):
+        ifelse_exp = None
+        else_first = None
+
+        for i in range(ctx.getChildCount() - 2, -1, 3):
+            if ctx.getChild(i).getText() == "if":
+                condition = self.visit(ctx.getChild(i + 1))
+                statements = self.visit(ctx.getChild(i + 2))
+            elif ctx.getChild(i).getText() == "elif":
+                condition = self.visit(ctx.getChild(i + 1))
+                statements = self.visit(ctx.getChild(i + 2))
+            elif ctx.getChild(i).getText() == "else":
+                else_first = self.visit(ctx.getChild(i + 1))
+                print(else_first)
+        pass
+
+    def visitIfelseBody(self, ctx: Cyclable_Z3_GrammerParser.IfelseBodyContext):
+        statements = []
+        for i in range(ctx.getChildCount()):
+            statements.append(self.visit(ctx.getChild(i)))
+        return statements
 
     '''
     function creation and calling

@@ -13,6 +13,7 @@ statement:
   | logicChain ENDLINE
   | functionDeclaration ENDLINE
   | distinct ENDLINE
+  | ifelse
   | repeater
   | functionDefinition
   ;
@@ -20,7 +21,10 @@ statement:
 functionStatement:
   mathOperation ENDLINE
   | logicChain ENDLINE
-  | distinct ENDLINE;
+  | distinct ENDLINE
+  | ifelse
+  | repeater
+  ;
 
 repeaterStatement:
   mathOperation ENDLINE
@@ -28,10 +32,26 @@ repeaterStatement:
   | distinct ENDLINE
   | callFunction ENDLINE
   | print ENDLINE
+  | ifelse
+  ;
+
+ifelseStatement:
+    mathOperation ENDLINE
+  | logicChain ENDLINE
+  | distinct ENDLINE
+  | callFunction ENDLINE
+  | print ENDLINE
+  | ifelse
+  | repeater
   ;
 
 check            : CHECK;
 print            : PRINT varList;
+
+ifelse           : IF logicChain '{' ifelseBody '}'
+                   (ELIF logicChain '{' ifelseBody '}')*
+                   ELSE '{' ifelseBody '}';
+ifelseBody       : ifelseStatement*;
 
 distinct         : DISTINCT varList;
 varList          : (assignedName | decFunName) (',' (assignedName | decFunName))*;
@@ -88,6 +108,10 @@ logicalItem       :
 // reserved words
 CHECK     : 'check';
 PRINT     : 'print';
+
+IF        : 'if';
+ELIF      : 'elif';
+ELSE      : 'else';
 
 CONST     : 'const';
 FUN       : 'Fun';

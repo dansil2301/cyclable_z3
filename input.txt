@@ -4,8 +4,15 @@ Int C;
 Int X;
 Int Y;
 Int Z;
+Int test;
 
 distinct A, B, C;
+
+if A > 5 {
+    test == 1;
+} else {
+    test == 2;
+}
 
 repeat var in [A, B, C] {
     1 < var;
