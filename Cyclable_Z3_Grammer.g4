@@ -36,7 +36,7 @@ repeaterStatement:
   ;
 
 ifelseStatement:
-    mathOperation ENDLINE
+  mathOperation ENDLINE
   | logicChain ENDLINE
   | distinct ENDLINE
   | callFunction ENDLINE
@@ -90,19 +90,18 @@ expr              :
    | expr '*' expr
    | expr '-' expr
    | expr '<<' expr
-   | assignedName
-   | value;
+   | (value | assignedName | assignedDecFun | callFunction)
+   ;
 
 logicChain        : logicalItem;
 logicalItem       :
     '(' logicalItem ')'
+    | logicalItem COMPARISON logicalItem
     | NOT logicalItem
     | logicalItem AND logicalItem
     | logicalItem OR logicalItem
     | logicalItem IMPLICATIONS logicalItem
-    | logicalItem IMPLICATIONS logicalItem
-    | logicalItem COMPARISON logicalItem
-    | (value | assignedName | expr | assignedDecFun | callFunction);
+    | (value | assignedName | mathOperation | assignedDecFun | callFunction);
 
 // tokens
 // reserved words
