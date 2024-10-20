@@ -16,6 +16,7 @@ statement:
   | ifelse
   | repeater
   | functionDefinition
+  | quantifierDeclaration
   ;
 
 functionStatement:
@@ -45,6 +46,13 @@ ifelseStatement:
   | repeater
   ;
 
+quantifierDeclaration:
+  FORALL '(' parametersFunction ')' '{' quantifierBody '}'
+  | EXISTS '(' parametersFunction ')' '{' quantifierBody '}'
+  ;
+
+
+
 check            : CHECK;
 print            : PRINT varList;
 
@@ -64,7 +72,9 @@ argList: z3Type (',' z3Type)*;
 
 functionDefinition: z3Type FUNCION varName '(' parametersFunction ')' '{' functionBody '}';
 functionBody      : functionStatement*;
+quantifierBody    : functionStatement*;
 parametersFunction: (z3Type varName) (',' z3Type varName)*;
+
 
 repeater          : REPEATER varName IN (range | repeaterVarList) '{' repeaterBody '}';
 repeaterBody      : repeaterStatement*;
@@ -121,6 +131,8 @@ IN        : 'in';
 RANGE     : 'range';
 
 DISTINCT  : 'distinct';
+FORALL    : 'forall';
+EXISTS    : 'exists';
 
 TYPES     : INT_T | BOOL_T | REAL_T;
 INT_T     : 'Int';

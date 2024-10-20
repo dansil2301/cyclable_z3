@@ -282,7 +282,46 @@ class Z3_visitor(Cyclable_Z3_GrammerVisitor):
     def visitRepeaterVarList(self, ctx: Cyclable_Z3_GrammerParser.RepeaterVarListContext):
         return self.visit(ctx.getChild(1))
 
+    def visitQuantifierDeclaration(self, ctx: Cyclable_Z3_GrammerParser.QuantifierDeclarationContext):
+        # Determine if this is forall or exists
+        quantifier_type = ctx.getChild(0).getText()
 
+        # Visit the parameter list to get the variables for the quantifier
+        parameters = self.visit(ctx.parametersFunction())
+
+        # Temporarily store these in local_variables
+        self.local_variables.update(ConverterHelper.convert_z3types_to_types(parameters))
+
+        # Visit the body of the quantifier
+        body = self.visit(ctx.quantifierBody())
+
+        # Convert the list of local variables to Z3 expressions
+        z3_params = list(self.local_variables.values())
+
+        # Generate the quantifier expression based on the type
+        if quantifier_type == 'forall':
+            quantifier_expr = z3.ForAll(z3_params, z3.And(*body))
+        elif quantifier_type == 'exists':
+            quantifier_expr = z3.Exists(z3_params, z3.And(*body))
+
+        # If we're not in a local scope (i.e., top-level), add the quantifier to the solver
+        if not self.isLocal:
+            self.solver.add(quantifier_expr)
+
+        # Clear the local_variables context since the quantifier scope ends
+        self.local_variables = dict()
+
+        # Return the quantifier expression if needed
+        return quantifier_expr
+
+    def visitQuantifierBody(self, ctx: Cyclable_Z3_GrammerParser.QuantifierBodyContext):
+        # Collect the list of statements inside the quantifier body
+        statements = []
+        for i in range(ctx.getChildCount()):
+            statement = self.visit(ctx.getChild(i))
+            if statement is not None:
+                statements.append(statement)
+        return statements
     '''
     types, values, names, operators
     '''

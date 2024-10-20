@@ -25,7 +25,7 @@ class ConverterHelper:
         elif operator == '->':
             return z3.Implies(left, right)
         else:
-            return None
+            return None 
 
     @staticmethod
     def logic_single(operator, v1):
