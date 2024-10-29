@@ -30,8 +30,6 @@ repeat i in range(6){
     exists(Int j) {0 <= j and j <= steps and visit[j] == i;}
 }
 
-
-
 repeat i in range(5){
     if i < 4 {
         canTravel(visit[i], visit[i + 1]);
