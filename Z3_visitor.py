@@ -135,9 +135,10 @@ class Z3_visitor(Cyclable_Z3_GrammerVisitor):
             v2 = self.visit(ctx.getChild(2))
             return ConverterHelper.math_doubles(operator, v1, v2)
         elif ctx.getChildCount() == 1:
+            is_collect_here = self.isCollect
             self.isCollect = True
             var = self.visit(ctx.getChild(0))
-            self.isCollect = False
+            self.isCollect = is_collect_here
             return var
     '''
     if elif else
@@ -199,9 +200,10 @@ class Z3_visitor(Cyclable_Z3_GrammerVisitor):
         self.local_variables = ConverterHelper.convert_z3types_to_types(function_parameters)
         self.currentFunc = z3.Function(func_name, *lst_parameters)
 
+        is_local_here = self.isLocal
         self.isLocal = True
         statements = self.visit(ctx.functionBody())
-        self.isLocal = False
+        self.isLocal = is_local_here
 
         self.functions[func_name] = {
             "function": self.currentFunc,
@@ -257,6 +259,7 @@ class Z3_visitor(Cyclable_Z3_GrammerVisitor):
         lst_cycle = self.visit(ctx.getChild(3))
         var_name = self.visit(ctx.varName())
 
+        is_local_here = self.isLocal
         self.isLocal = True
 
         for item in lst_cycle:
@@ -264,7 +267,7 @@ class Z3_visitor(Cyclable_Z3_GrammerVisitor):
             self.visit(ctx.repeaterBody())
 
         self.local_variables = dict()
-        self.isLocal = False
+        self.isLocal = is_local_here
 
     def visitRepeaterBody(self, ctx: Cyclable_Z3_GrammerParser.RepeaterBodyContext):
         statements = []
@@ -304,9 +307,10 @@ class Z3_visitor(Cyclable_Z3_GrammerVisitor):
         self.local_variables.update(ConverterHelper.convert_z3types_to_types(parameters))
 
         # Visit the body of the quantifier
+        is_local_here = self.isLocal
         self.isLocal = True
         body = self.visit(ctx.quantifierBody())
-        self.isLocal = False
+        self.isLocal = is_local_here
 
         # Convert the list of local variables to Z3 expressions
         z3_params = list(self.local_variables.values())
