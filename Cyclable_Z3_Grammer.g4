@@ -25,6 +25,7 @@ functionStatement:
   | distinct ENDLINE
   | ifelse
   | repeater
+  | quantifierDeclaration
   ;
 
 repeaterStatement:
@@ -34,6 +35,7 @@ repeaterStatement:
   | callFunction ENDLINE
   | print ENDLINE
   | ifelse
+  | quantifierDeclaration
   ;
 
 ifelseStatement:

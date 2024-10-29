@@ -26,12 +26,11 @@ Int function costTravel (Int from, Int to) {
 
 5 <= steps and steps <= 11;
 
-exists(Int i0) {0 <= i0 and i0 <= steps and visit[i0] == 0;}
-exists(Int i1) {0 <= i1 and i1 <= steps and visit[i1] == 1;}
-exists(Int i2) {0 <= i2 and i2 <= steps and visit[i2] == 2;}
-exists(Int i3) {0 <= i3 and i3 <= steps and visit[i3] == 3;}
-exists(Int i4) {0 <= i4 and i4 <= steps and visit[i4] == 4;}
-exists(Int i5) {0 <= i5 and i5 <= steps and visit[i5] == 5;}
+repeat i in range(6){
+    exists(Int j) {0 <= j and j <= steps and visit[j] == i;}
+}
+
+
 
 repeat i in range(5){
     if i < 4 {

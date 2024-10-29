@@ -304,7 +304,8 @@ class Z3_visitor(Cyclable_Z3_GrammerVisitor):
         parameters = self.visit(ctx.parametersFunction())
 
         # Temporarily store these in local_variables
-        self.local_variables.update(ConverterHelper.convert_z3types_to_types(parameters))
+        parameters = ConverterHelper.convert_z3types_to_types(parameters)
+        self.local_variables.update(parameters)
 
         # Visit the body of the quantifier
         is_local_here = self.isLocal
@@ -313,7 +314,7 @@ class Z3_visitor(Cyclable_Z3_GrammerVisitor):
         self.isLocal = is_local_here
 
         # Convert the list of local variables to Z3 expressions
-        z3_params = list(self.local_variables.values())
+        z3_params = list(parameters.values())
 
         # Generate the quantifier expression based on the type
         if quantifier_type == 'forall':
