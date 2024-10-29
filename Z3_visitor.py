@@ -135,7 +135,10 @@ class Z3_visitor(Cyclable_Z3_GrammerVisitor):
             v2 = self.visit(ctx.getChild(2))
             return ConverterHelper.math_doubles(operator, v1, v2)
         elif ctx.getChildCount() == 1:
-            return self.visit(ctx.getChild(0))
+            self.isCollect = True
+            var = self.visit(ctx.getChild(0))
+            self.isCollect = False
+            return var
     '''
     if elif else
     '''
@@ -143,15 +146,20 @@ class Z3_visitor(Cyclable_Z3_GrammerVisitor):
         ifelse_exp = None
         else_first = None
 
+        is_collect_here = self.isCollect
         self.isCollect = True
         for i in range(ctx.getChildCount() - 4, -1, -5):
             if ctx.getChild(i).getText() == "if":
+                self.isCollect = True
                 condition = self.visit(ctx.getChild(i + 1))
                 statements = self.visit(ctx.getChild(i + 3))
+                self.isCollect = False
                 ifelse_exp = ConverterHelper.get_expr(condition, statements, ifelse_exp, else_first)
             elif ctx.getChild(i).getText() == "elif":
+                self.isCollect = True
                 condition = self.visit(ctx.getChild(i + 1))
                 statements = self.visit(ctx.getChild(i + 3))
+                self.isCollect = False
                 ifelse_exp = ConverterHelper.get_expr(condition, statements, ifelse_exp, else_first)
             elif ctx.getChild(i).getText() == "else":
                 statements = self.visit(ctx.getChild(i + 2))
@@ -161,7 +169,7 @@ class Z3_visitor(Cyclable_Z3_GrammerVisitor):
                 else:
                     else_first = z3.And(*statements)
 
-        self.isCollect = False
+        self.isCollect = is_collect_here
 
         if self.isLocal or self.isCollect:
             return ifelse_exp
@@ -282,6 +290,9 @@ class Z3_visitor(Cyclable_Z3_GrammerVisitor):
     def visitRepeaterVarList(self, ctx: Cyclable_Z3_GrammerParser.RepeaterVarListContext):
         return self.visit(ctx.getChild(1))
 
+    '''
+    quantifier logic
+    '''
     def visitQuantifierDeclaration(self, ctx: Cyclable_Z3_GrammerParser.QuantifierDeclarationContext):
         # Determine if this is forall or exists
         quantifier_type = ctx.getChild(0).getText()
@@ -293,7 +304,9 @@ class Z3_visitor(Cyclable_Z3_GrammerVisitor):
         self.local_variables.update(ConverterHelper.convert_z3types_to_types(parameters))
 
         # Visit the body of the quantifier
+        self.isLocal = True
         body = self.visit(ctx.quantifierBody())
+        self.isLocal = False
 
         # Convert the list of local variables to Z3 expressions
         z3_params = list(self.local_variables.values())
@@ -322,6 +335,7 @@ class Z3_visitor(Cyclable_Z3_GrammerVisitor):
             if statement is not None:
                 statements.append(statement)
         return statements
+
     '''
     types, values, names, operators
     '''
@@ -364,11 +378,11 @@ class Z3_visitor(Cyclable_Z3_GrammerVisitor):
         var_name = ctx.getText()
 
         if self.isLocal:
-            var = self.local_variables[var_name]
+            if var_name in self.local_variables:
+                return self.local_variables[var_name]
+            return self.variables[var_name]
         else:
-            var = self.variables[var_name]
-
-        return var
+            return self.variables[var_name]
 
     def visitAssignedDecFun(self, ctx: Cyclable_Z3_GrammerParser.AssignedDecFunContext):
         func_name = ctx.getChild(0).getText()

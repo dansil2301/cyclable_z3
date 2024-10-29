@@ -50,8 +50,7 @@ quantifierDeclaration:
   FORALL '(' parametersFunction ')' '{' quantifierBody '}'
   | EXISTS '(' parametersFunction ')' '{' quantifierBody '}'
   ;
-
-
+quantifierBody    : functionStatement*;
 
 check            : CHECK;
 print            : PRINT varList;
@@ -72,7 +71,6 @@ argList: z3Type (',' z3Type)*;
 
 functionDefinition: z3Type FUNCION varName '(' parametersFunction ')' '{' functionBody '}';
 functionBody      : functionStatement*;
-quantifierBody    : functionStatement*;
 parametersFunction: (z3Type varName) (',' z3Type varName)*;
 
 
@@ -100,7 +98,7 @@ expr              :
    | expr '*' expr
    | expr '-' expr
    | expr '<<' expr
-   | (value | assignedName | assignedDecFun | callFunction)
+   | (value | assignedName | assignedDecFun | callFunction | ifelse)
    ;
 
 logicChain        : logicalItem;
